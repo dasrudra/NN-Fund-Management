@@ -1,0 +1,37 @@
+# Local Odoo configuration and secrets
+config/odoo.local.conf
+.env
+
+# Local runtime data
+runtime/
+*.log
+
+# Python generated files
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Odoo generated files
+*.pot
+*.po~
+sessions/
+filestore/
+
+# IDE and operating system
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
