@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_nn_expense_head_list" model="ir.ui.view">
+        <field name="name">nn.expense.head.list</field>
+        <field name="model">nn.expense.head</field>
+        <field name="arch" type="xml">
+            <list string="Expense Heads"
+                  default_order="sequence, code"
+                  decoration-muted="not active">
+                <field name="sequence" widget="handle"/>
+                <field name="code"/>
+                <field name="name"/>
+                <field name="company_id"
+                       groups="base.group_multi_company"/>
+                <field name="currency_id"/>
+                <field name="active" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_nn_expense_head_form" model="ir.ui.view">
+        <field name="name">nn.expense.head.form</field>
+        <field name="model">nn.expense.head</field>
+        <field name="arch" type="xml">
+            <form string="Expense Head">
+                <sheet>
+                    <widget name="web_ribbon"
+                            title="Archived"
+                            bg_color="text-bg-danger"
+                            invisible="active"/>
+
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name"
+                                   placeholder="e.g. Administrative Expenses"/>
+                        </h1>
+                    </div>
+
+                    <group>
+                        <group string="Expense Information">
+                            <field name="code"
+                                   placeholder="e.g. ADMIN"/>
+                            <field name="sequence"/>
+                        </group>
+
+                        <group string="Company Information">
+                            <field name="company_id"
+                                   groups="base.group_multi_company"/>
+                            <field name="currency_id" readonly="1"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+
+                    <group string="Description">
+                        <field name="description"
+                               placeholder="Describe the type of expenditure..."
+                               nolabel="1"/>
+                    </group>
+                </sheet>
+
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_nn_expense_head_search" model="ir.ui.view">
+        <field name="name">nn.expense.head.search</field>
+        <field name="model">nn.expense.head</field>
+        <field name="arch" type="xml">
+            <search string="Search Expense Heads">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="company_id"/>
+
+                <separator/>
+
+                <filter name="filter_archived"
+                        string="Archived"
+                        domain="[('active', '=', False)]"/>
+
+                <group>
+                    <filter name="group_by_company"
+                            string="Company"
+                            context="{'group_by': 'company_id'}"
+                            groups="base.group_multi_company"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_nn_expense_head" model="ir.actions.act_window">
+        <field name="name">Expense Heads</field>
+        <field name="res_model">nn.expense.head</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id"
+               ref="view_nn_expense_head_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first expense head
+            </p>
+            <p>
+                Expense heads classify funds intended for
+                organisational expenditure.
+            </p>
+        </field>
+    </record>
+</odoo>

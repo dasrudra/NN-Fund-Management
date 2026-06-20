@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_nn_fund_account_list" model="ir.ui.view">
+        <field name="name">nn.fund.account.list</field>
+        <field name="model">nn.fund.account</field>
+        <field name="arch" type="xml">
+            <list string="Fund Accounts"
+                  default_order="code, name"
+                  decoration-muted="not active">
+                <field name="code"/>
+                <field name="name"/>
+                <field name="account_type"/>
+                <field name="bank_id" optional="show"/>
+                <field name="account_number" optional="hide"/>
+                <field name="company_id"
+                       groups="base.group_multi_company"/>
+                <field name="currency_id"/>
+                <field name="active" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_nn_fund_account_form" model="ir.ui.view">
+        <field name="name">nn.fund.account.form</field>
+        <field name="model">nn.fund.account</field>
+        <field name="arch" type="xml">
+            <form string="Fund Account">
+                <sheet>
+                    <widget name="web_ribbon"
+                            title="Archived"
+                            bg_color="text-bg-danger"
+                            invisible="active"/>
+
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name"
+                                   placeholder="e.g. Main Operating Bank"/>
+                        </h1>
+                    </div>
+
+                    <group>
+                        <group string="Account Information">
+                            <field name="code"
+                                   placeholder="e.g. BANK-001"/>
+                            <field name="account_type"/>
+                            <field name="bank_id"
+                                   invisible="account_type != 'bank'"/>
+                            <field name="account_number"
+                                   invisible="account_type != 'bank'"/>
+                        </group>
+
+                        <group string="Company Information">
+                            <field name="company_id"
+                                   groups="base.group_multi_company"/>
+                            <field name="currency_id" readonly="1"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+
+                    <group string="Notes">
+                        <field name="note"
+                               placeholder="Optional account description or instructions..."
+                               nolabel="1"/>
+                    </group>
+                </sheet>
+
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_nn_fund_account_search" model="ir.ui.view">
+        <field name="name">nn.fund.account.search</field>
+        <field name="model">nn.fund.account</field>
+        <field name="arch" type="xml">
+            <search string="Search Fund Accounts">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="bank_id"/>
+                <field name="company_id"/>
+
+                <separator/>
+
+                <filter name="filter_bank"
+                        string="Bank Accounts"
+                        domain="[('account_type', '=', 'bank')]"/>
+                <filter name="filter_cash"
+                        string="Cash Accounts"
+                        domain="[('account_type', '=', 'cash')]"/>
+                <filter name="filter_archived"
+                        string="Archived"
+                        domain="[('active', '=', False)]"/>
+
+                <group>
+                    <filter name="group_by_type"
+                            string="Account Type"
+                            context="{'group_by': 'account_type'}"/>
+                    <filter name="group_by_company"
+                            string="Company"
+                            context="{'group_by': 'company_id'}"
+                            groups="base.group_multi_company"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_nn_fund_account" model="ir.actions.act_window">
+        <field name="name">Fund Accounts</field>
+        <field name="res_model">nn.fund.account</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id"
+               ref="view_nn_fund_account_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first fund account
+            </p>
+            <p>
+                Fund accounts represent bank, cash, or other accounts
+                where incoming funds are received and controlled.
+            </p>
+        </field>
+    </record>
+</odoo>

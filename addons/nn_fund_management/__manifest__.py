@@ -1,33 +1,36 @@
 {
-    'name': "nn_fund_management",
+    "name": "NN Fund Management",
+    "summary": (
+        "Secure fund allocation, requisition, transfer, "
+        "approval, and expenditure control"
+    ),
+    "description": """
+NN Fund Management
+==================
 
-    'summary': "Short (1 phrase/line) summary of the module's purpose",
-
-    'description': """
-Long description of module's purpose
+A secure fund management application for recording incoming funds,
+allocating funds to projects or expense heads, processing requisitions,
+controlling bills, transferring funds, managing multi-level approvals,
+and maintaining complete financial audit trails.
     """,
-
-    'author': "My Company",
-    'website': "https://www.yourcompany.com",
-
-    # Categories can be used to filter modules in modules listing
-    # Check https://github.com/odoo/odoo/blob/15.0/odoo/addons/base/data/ir_module_category_data.xml
-    # for the full list
-    'category': 'Uncategorized',
-    'version': '0.1',
-
-    # any module necessary for this one to work correctly
-    'depends': ['base'],
-
-    # always loaded
-    'data': [
-        # 'security/ir.model.access.csv',
-        'views/views.xml',
-        'views/templates.xml',
+    "author": "Rudra Das",
+    "website": "https://github.com/dasrudra/NN-Fund-Management",
+    "category": "Accounting",
+    "version": "19.0.1.0.0",
+    "license": "LGPL-3",
+    "depends": [
+        "base",
+        "mail",
+        "project",
     ],
-    # only loaded in demonstration mode
-    'demo': [
-        'demo/demo.xml',
+    "data": [
+        "security/fund_management_security.xml",
+        "security/ir.model.access.csv",
+        "views/fund_account_views.xml",
+        "views/expense_head_views.xml",
+        "views/fund_management_menus.xml",
     ],
+    "application": True,
+    "installable": True,
+    "auto_install": False,
 }
-

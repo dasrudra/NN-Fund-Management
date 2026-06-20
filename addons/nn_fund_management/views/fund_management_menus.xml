@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_nn_fund_management_root"
+              name="Fund Management"
+              sequence="35"
+              groups="nn_fund_management.group_fund_user"/>
+
+    <menuitem id="menu_nn_fund_management_configuration"
+              name="Configuration"
+              parent="menu_nn_fund_management_root"
+              sequence="90"
+              groups="nn_fund_management.group_fund_finance"/>
+
+    <menuitem id="menu_nn_fund_account"
+              name="Fund Accounts"
+              parent="menu_nn_fund_management_configuration"
+              action="action_nn_fund_account"
+              sequence="10"/>
+
+    <menuitem id="menu_nn_expense_head"
+              name="Expense Heads"
+              parent="menu_nn_fund_management_configuration"
+              action="action_nn_expense_head"
+              sequence="20"/>
+</odoo>
