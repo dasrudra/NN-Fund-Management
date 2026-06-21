@@ -12,6 +12,9 @@
                 <field name="account_type"/>
                 <field name="bank_id" optional="show"/>
                 <field name="account_number" optional="hide"/>
+                <field name="total_received" sum="Total Received"/>
+                <field name="unassigned_balance"
+                       sum="Total Unassigned"/>
                 <field name="company_id"
                        groups="base.group_multi_company"/>
                 <field name="currency_id"/>
@@ -30,6 +33,17 @@
                             title="Archived"
                             bg_color="text-bg-danger"
                             invisible="active"/>
+
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_open_incoming_funds"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-money">
+                            <field name="incoming_fund_count"
+                                   widget="statinfo"
+                                   string="Incoming Funds"/>
+                        </button>
+                    </div>
 
                     <div class="oe_title">
                         <label for="name"/>
@@ -55,6 +69,18 @@
                                    groups="base.group_multi_company"/>
                             <field name="currency_id" readonly="1"/>
                             <field name="active"/>
+                        </group>
+                    </group>
+
+                    <group string="Fund Balances">
+                        <group>
+                            <field name="total_received" readonly="1"/>
+                            <field name="unassigned_balance" readonly="1"/>
+                        </group>
+
+                        <group>
+                            <field name="held_balance" readonly="1"/>
+                            <field name="assigned_balance" readonly="1"/>
                         </group>
                     </group>
 

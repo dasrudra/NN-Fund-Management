@@ -64,6 +64,43 @@ class NnFundAccount(models.Model):
         store=True,
         readonly=True,
     )
+    incoming_fund_ids = fields.One2many(
+        comodel_name="nn.incoming.fund",
+        inverse_name="fund_account_id",
+        string="Incoming Funds",
+    )
+    incoming_fund_count = fields.Integer(
+        string="Incoming Fund Count",
+        compute="_compute_incoming_fund_count",
+    )
+    total_received = fields.Monetary(
+        string="Total Received",
+        currency_field="currency_id",
+        compute="_compute_fund_balances",
+        store=True,
+        readonly=True,
+    )
+    unassigned_balance = fields.Monetary(
+        string="Unassigned Balance",
+        currency_field="currency_id",
+        compute="_compute_fund_balances",
+        store=True,
+        readonly=True,
+    )
+    held_balance = fields.Monetary(
+        string="Held Balance",
+        currency_field="currency_id",
+        compute="_compute_fund_balances",
+        store=True,
+        readonly=True,
+    )
+    assigned_balance = fields.Monetary(
+        string="Assigned Balance",
+        currency_field="currency_id",
+        compute="_compute_fund_balances",
+        store=True,
+        readonly=True,
+    )
     note = fields.Text(
         string="Notes",
     )
@@ -72,13 +109,42 @@ class NnFundAccount(models.Model):
         tracking=True,
     )
 
+    @api.depends("incoming_fund_ids")
+    def _compute_incoming_fund_count(self):
+        for record in self:
+            record.incoming_fund_count = len(
+                record.incoming_fund_ids
+            )
+
+    @api.depends(
+        "incoming_fund_ids.amount",
+        "incoming_fund_ids.state",
+    )
+    def _compute_fund_balances(self):
+        for record in self:
+            confirmed_total = sum(
+                incoming.amount
+                for incoming in record.incoming_fund_ids
+                if incoming.state == "confirmed"
+            )
+
+            record.total_received = confirmed_total
+
+            # Allocation and transfer holds will be incorporated
+            # when those transaction models are implemented.
+            record.held_balance = 0.0
+            record.assigned_balance = 0.0
+            record.unassigned_balance = confirmed_total
+
     @api.model_create_multi
     def create(self, vals_list):
         for values in vals_list:
             if values.get("code"):
                 values["code"] = values["code"].strip().upper()
+
             if values.get("name"):
                 values["name"] = values["name"].strip()
+
         return super().create(vals_list)
 
     def write(self, values):
@@ -104,3 +170,20 @@ class NnFundAccount(models.Model):
                 raise ValidationError(
                     _("The fund account code cannot be empty.")
                 )
+
+    def action_open_incoming_funds(self):
+        self.ensure_one()
+
+        action = self.env["ir.actions.actions"]._for_xml_id(
+            "nn_fund_management.action_nn_incoming_fund"
+        )
+
+        action["domain"] = [
+            ("fund_account_id", "=", self.id),
+        ]
+        action["context"] = dict(
+            self.env.context,
+            default_fund_account_id=self.id,
+        )
+
+        return action

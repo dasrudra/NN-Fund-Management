@@ -5,6 +5,18 @@
               sequence="35"
               groups="nn_fund_management.group_fund_user"/>
 
+    <menuitem id="menu_nn_fund_management_operations"
+              name="Operations"
+              parent="menu_nn_fund_management_root"
+              sequence="10"
+              groups="nn_fund_management.group_fund_user"/>
+
+    <menuitem id="menu_nn_incoming_fund"
+              name="Incoming Funds"
+              parent="menu_nn_fund_management_operations"
+              action="action_nn_incoming_fund"
+              sequence="10"/>
+
     <menuitem id="menu_nn_fund_management_configuration"
               name="Configuration"
               parent="menu_nn_fund_management_root"
