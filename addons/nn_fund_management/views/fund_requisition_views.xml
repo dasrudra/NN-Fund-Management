@@ -1,37 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="view_nn_fund_allocation_list" model="ir.ui.view">
-        <field name="name">nn.fund.allocation.list</field>
-        <field name="model">nn.fund.allocation</field>
+    <record id="view_nn_fund_requisition_list" model="ir.ui.view">
+        <field name="name">nn.fund.requisition.list</field>
+        <field name="model">nn.fund.requisition</field>
         <field name="arch" type="xml">
-            <list string="Fund Allocations"
-                  default_order="allocation_date desc, id desc"
+            <list string="Fund Requisitions"
+                  default_order="request_date desc, id desc"
                   decoration-info="state == 'submitted'"
                   decoration-warning="state == 'gm_approved'"
-                  decoration-success="state == 'md_approved'"
+                  decoration-success="state == 'md_approved' or state == 'approved'"
                   decoration-danger="state == 'rejected'"
-                  decoration-muted="state == 'cancelled'">
+                  decoration-muted="state == 'cancelled' or state == 'closed'">
                 <field name="name"/>
-                <field name="allocation_date"/>
+                <field name="request_date"/>
+                <field name="required_date" optional="show"/>
                 <field name="fund_account_id"/>
-                <field name="allocation_type"/>
+                <field name="target_type" optional="show"/>
                 <field name="project_id" optional="show"/>
                 <field name="expense_head_id" optional="show"/>
                 <field name="purpose"/>
-                <field name="amount" sum="Total Allocation"/>
+                <field name="amount" sum="Total Requested"/>
+                <field name="remaining_billable_amount" sum="Remaining Billable"/>
                 <field name="currency_id" column_invisible="True"/>
-                <field name="company_id"
-                       groups="base.group_multi_company"/>
+                <field name="requested_by_id" optional="show"/>
+                <field name="company_id" groups="base.group_multi_company"/>
                 <field name="state" widget="badge"/>
             </list>
         </field>
     </record>
 
-    <record id="view_nn_fund_allocation_form" model="ir.ui.view">
-        <field name="name">nn.fund.allocation.form</field>
-        <field name="model">nn.fund.allocation</field>
+    <record id="view_nn_fund_requisition_form" model="ir.ui.view">
+        <field name="name">nn.fund.requisition.form</field>
+        <field name="model">nn.fund.requisition</field>
         <field name="arch" type="xml">
-            <form string="Fund Allocation">
+            <form string="Fund Requisition">
                 <header>
                     <button name="action_submit"
                             type="object"
@@ -66,15 +68,15 @@
                             invisible="state != 'draft' and state != 'submitted'"
                             groups="nn_fund_management.group_fund_finance"/>
 
-                    <button name="action_reset_to_draft"
+                    <button name="action_close"
                             type="object"
-                            string="Reset to Draft"
-                            invisible="state != 'cancelled' and state != 'rejected'"
+                            string="Close"
+                            invisible="state != 'md_approved' and state != 'approved'"
                             groups="nn_fund_management.group_fund_finance"/>
 
                     <field name="state"
                            widget="statusbar"
-                           statusbar_visible="draft,submitted,gm_approved,md_approved,rejected,cancelled"/>
+                           statusbar_visible="draft,submitted,gm_approved,md_approved,approved,rejected,cancelled,closed"/>
                 </header>
 
                 <sheet>
@@ -86,46 +88,68 @@
                     </div>
 
                     <group>
-                        <group string="Allocation Source">
+                        <group string="Requisition Source">
+                            <field name="company_id" invisible="1"/>
+
                             <field name="fund_account_id"
-                                   readonly="state != 'draft'"
-                                   options="{'no_quick_create': True, 'no_create_edit': True}"/>
+                                readonly="state != 'draft'"
+                                domain="[('company_id', '=', company_id)]"
+                                options="{'no_quick_create': True, 'no_create_edit': True}"/>
 
-                            <field name="allocation_date"
-                                   readonly="state != 'draft'"/>
-
-                            <field name="allocation_type"
-                                   readonly="state != 'draft'"/>
+                            <field name="target_type"
+                                readonly="state != 'draft'"/>
 
                             <field name="project_id"
-                                   invisible="allocation_type != 'project'"
-                                   required="allocation_type == 'project'"
-                                   readonly="state != 'draft'"
-                                   domain="[('company_id', 'in', [False, company_id])]"
-                                   options="{'no_quick_create': True, 'no_create_edit': True}"/>
+                                invisible="target_type != 'project'"
+                                readonly="state != 'draft'"
+                                required="target_type == 'project'"
+                                domain="[('company_id', 'in', [False, company_id])]"
+                                options="{'no_quick_create': True, 'no_create_edit': True}"/>
 
                             <field name="expense_head_id"
-                                   invisible="allocation_type != 'expense_head'"
-                                   required="allocation_type == 'expense_head'"
-                                   readonly="state != 'draft'"
-                                   domain="[('company_id', '=', company_id)]"
-                                   options="{'no_quick_create': True, 'no_create_edit': True}"/>
+                                invisible="target_type != 'expense_head'"
+                                readonly="state != 'draft'"
+                                required="target_type == 'expense_head'"
+                                domain="[('company_id', '=', company_id)]"
+                                options="{'no_quick_create': True, 'no_create_edit': True}"/>
+
+                            <field name="requested_by_id" readonly="1"/>
                         </group>
 
                         <group string="Financial Information">
                             <field name="amount"
                                    readonly="state != 'draft'"/>
 
-                            <field name="currency_id"
+                            <field name="remaining_billable_amount"
                                    readonly="1"/>
+
+                            <field name="currency_id" readonly="1"/>
 
                             <field name="company_id"
                                    readonly="1"
                                    groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+
+                    <group>
+                        <group string="Request Information">
+                            <field name="request_date"
+                                   readonly="state != 'draft'"/>
+
+                            <field name="required_date"
+                                   readonly="state != 'draft'"/>
 
                             <field name="purpose"
                                    readonly="state != 'draft'"
-                                   placeholder="e.g. Initial project fund allocation"/>
+                                   placeholder="e.g. Request fund for approved project work"/>
+                        </group>
+
+                        <group string="Supporting Document">
+                            <field name="supporting_filename" invisible="1"/>
+
+                            <field name="supporting_file"
+                                   filename="supporting_filename"
+                                   readonly="state != 'draft'"/>
                         </group>
                     </group>
 
@@ -133,7 +157,7 @@
                         <field name="note"
                                nolabel="1"
                                readonly="state != 'draft'"
-                               placeholder="Optional allocation details..."/>
+                               placeholder="Optional requisition details..."/>
                     </group>
 
                     <group string="Approval Audit">
@@ -179,6 +203,14 @@
                             <field name="cancelled_date"
                                    readonly="1"
                                    invisible="not cancelled_date"/>
+
+                            <field name="closed_by_id"
+                                   readonly="1"
+                                   invisible="not closed_by_id"/>
+
+                            <field name="closed_date"
+                                   readonly="1"
+                                   invisible="not closed_date"/>
                         </group>
                     </group>
 
@@ -195,16 +227,18 @@
         </field>
     </record>
 
-    <record id="view_nn_fund_allocation_search" model="ir.ui.view">
-        <field name="name">nn.fund.allocation.search</field>
-        <field name="model">nn.fund.allocation</field>
+    <record id="view_nn_fund_requisition_search" model="ir.ui.view">
+        <field name="name">nn.fund.requisition.search</field>
+        <field name="model">nn.fund.requisition</field>
         <field name="arch" type="xml">
-            <search string="Search Fund Allocations">
+            <search string="Search Fund Requisitions">
                 <field name="name"/>
                 <field name="fund_account_id"/>
+                <field name="target_type"/>
                 <field name="project_id"/>
                 <field name="expense_head_id"/>
                 <field name="purpose"/>
+                <field name="requested_by_id"/>
                 <field name="company_id"/>
 
                 <separator/>
@@ -233,20 +267,28 @@
                         string="Cancelled"
                         domain="[('state', '=', 'cancelled')]"/>
 
+                <filter name="filter_closed"
+                        string="Closed"
+                        domain="[('state', '=', 'closed')]"/>
+
                 <separator/>
 
-                <filter name="filter_allocation_date"
-                        string="Allocation Date"
-                        date="allocation_date"/>
+                <filter name="filter_request_date"
+                        string="Request Date"
+                        date="request_date"/>
 
                 <group>
                     <filter name="group_by_account"
                             string="Fund Account"
                             context="{'group_by': 'fund_account_id'}"/>
 
-                    <filter name="group_by_type"
-                            string="Allocation Type"
-                            context="{'group_by': 'allocation_type'}"/>
+                    <filter name="group_by_project"
+                            string="Project"
+                            context="{'group_by': 'project_id'}"/>
+
+                    <filter name="group_by_expense_head"
+                            string="Expense Head"
+                            context="{'group_by': 'expense_head_id'}"/>
 
                     <filter name="group_by_state"
                             string="Status"
@@ -261,22 +303,21 @@
         </field>
     </record>
 
-    <record id="action_nn_fund_allocation" model="ir.actions.act_window">
-        <field name="name">Fund Allocations</field>
-        <field name="res_model">nn.fund.allocation</field>
+    <record id="action_nn_fund_requisition" model="ir.actions.act_window">
+        <field name="name">Fund Requisitions</field>
+        <field name="res_model">nn.fund.requisition</field>
         <field name="view_mode">list,form</field>
         <field name="search_view_id"
-               ref="view_nn_fund_allocation_search"/>
+               ref="view_nn_fund_requisition_search"/>
 
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
-                Create your first fund allocation
+                Create your first fund requisition
             </p>
 
             <p>
-                Submitted allocations move money from unassigned balance
-                to held balance. MD-approved allocations move money
-                from held balance to assigned balance.
+                Requisitions reserve approved project or expense-head funds
+                for controlled bill creation.
             </p>
         </field>
     </record>

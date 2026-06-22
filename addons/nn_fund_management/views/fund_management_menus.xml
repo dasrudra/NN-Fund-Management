@@ -23,6 +23,12 @@
               action="action_nn_fund_allocation"
               sequence="20"/>
 
+    <menuitem id="menu_nn_fund_requisition"
+              name="Fund Requisitions"
+              parent="menu_nn_fund_management_operations"
+              action="action_nn_fund_requisition"
+              sequence="30"/>
+
     <menuitem id="menu_nn_fund_management_configuration"
               name="Configuration"
               parent="menu_nn_fund_management_root"
