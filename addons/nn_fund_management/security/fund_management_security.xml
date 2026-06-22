@@ -126,4 +126,13 @@
             [('company_id', 'in', company_ids)]
         </field>
     </record>
+        <record id="rule_fund_allocation_multi_company" model="ir.rule">
+        <field name="name">
+            Fund Allocation: multi-company isolation
+        </field>
+        <field name="model_id" ref="model_nn_fund_allocation"/>
+        <field name="domain_force">
+            [('company_id', 'in', company_ids)]
+        </field>
+    </record>
 </odoo>

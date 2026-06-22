@@ -73,6 +73,15 @@ class NnFundAccount(models.Model):
         string="Incoming Fund Count",
         compute="_compute_incoming_fund_count",
     )
+    allocation_ids = fields.One2many(
+        comodel_name="nn.fund.allocation",
+        inverse_name="fund_account_id",
+        string="Fund Allocations",
+    )
+    allocation_count = fields.Integer(
+        string="Allocation Count",
+        compute="_compute_allocation_count",
+    )
     total_received = fields.Monetary(
         string="Total Received",
         currency_field="currency_id",
@@ -112,13 +121,18 @@ class NnFundAccount(models.Model):
     @api.depends("incoming_fund_ids")
     def _compute_incoming_fund_count(self):
         for record in self:
-            record.incoming_fund_count = len(
-                record.incoming_fund_ids
-            )
+            record.incoming_fund_count = len(record.incoming_fund_ids)
+
+    @api.depends("allocation_ids")
+    def _compute_allocation_count(self):
+        for record in self:
+            record.allocation_count = len(record.allocation_ids)
 
     @api.depends(
         "incoming_fund_ids.amount",
         "incoming_fund_ids.state",
+        "allocation_ids.amount",
+        "allocation_ids.state",
     )
     def _compute_fund_balances(self):
         for record in self:
@@ -128,13 +142,24 @@ class NnFundAccount(models.Model):
                 if incoming.state == "confirmed"
             )
 
-            record.total_received = confirmed_total
+            held_total = sum(
+                allocation.amount
+                for allocation in record.allocation_ids
+                if allocation.state in ("submitted", "gm_approved")
+            )
 
-            # Allocation and transfer holds will be incorporated
-            # when those transaction models are implemented.
-            record.held_balance = 0.0
-            record.assigned_balance = 0.0
-            record.unassigned_balance = confirmed_total
+            assigned_total = sum(
+                allocation.amount
+                for allocation in record.allocation_ids
+                if allocation.state == "md_approved"
+            )
+
+            record.total_received = confirmed_total
+            record.held_balance = held_total
+            record.assigned_balance = assigned_total
+            record.unassigned_balance = (
+                confirmed_total - held_total - assigned_total
+            )
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -176,6 +201,23 @@ class NnFundAccount(models.Model):
 
         action = self.env["ir.actions.actions"]._for_xml_id(
             "nn_fund_management.action_nn_incoming_fund"
+        )
+
+        action["domain"] = [
+            ("fund_account_id", "=", self.id),
+        ]
+        action["context"] = dict(
+            self.env.context,
+            default_fund_account_id=self.id,
+        )
+
+        return action
+
+    def action_open_allocations(self):
+        self.ensure_one()
+
+        action = self.env["ir.actions.actions"]._for_xml_id(
+            "nn_fund_management.action_nn_fund_allocation"
         )
 
         action["domain"] = [

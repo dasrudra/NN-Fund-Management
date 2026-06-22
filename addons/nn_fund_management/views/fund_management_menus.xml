@@ -17,6 +17,12 @@
               action="action_nn_incoming_fund"
               sequence="10"/>
 
+    <menuitem id="menu_nn_fund_allocation"
+              name="Fund Allocations"
+              parent="menu_nn_fund_management_operations"
+              action="action_nn_fund_allocation"
+              sequence="20"/>
+
     <menuitem id="menu_nn_fund_management_configuration"
               name="Configuration"
               parent="menu_nn_fund_management_root"

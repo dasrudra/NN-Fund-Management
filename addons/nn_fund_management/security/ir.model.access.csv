@@ -8,3 +8,8 @@ access_nn_expense_head_admin,nn.expense.head administrator,model_nn_expense_head
 access_nn_incoming_fund_user,nn.incoming.fund user,model_nn_incoming_fund,nn_fund_management.group_fund_user,1,0,0,0
 access_nn_incoming_fund_finance,nn.incoming.fund finance,model_nn_incoming_fund,nn_fund_management.group_fund_finance,1,1,1,0
 access_nn_incoming_fund_admin,nn.incoming.fund administrator,model_nn_incoming_fund,nn_fund_management.group_fund_admin,1,1,1,1
+access_nn_fund_allocation_user,nn.fund.allocation user,model_nn_fund_allocation,nn_fund_management.group_fund_user,1,0,0,0
+access_nn_fund_allocation_finance,nn.fund.allocation finance,model_nn_fund_allocation,nn_fund_management.group_fund_finance,1,1,1,0
+access_nn_fund_allocation_gm,nn.fund.allocation gm approver,model_nn_fund_allocation,nn_fund_management.group_fund_gm_approver,1,1,0,0
+access_nn_fund_allocation_md,nn.fund.allocation md approver,model_nn_fund_allocation,nn_fund_management.group_fund_md_approver,1,1,0,0
+access_nn_fund_allocation_admin,nn.fund.allocation administrator,model_nn_fund_allocation,nn_fund_management.group_fund_admin,1,1,1,1

@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_nn_fund_allocation_list" model="ir.ui.view">
+        <field name="name">nn.fund.allocation.list</field>
+        <field name="model">nn.fund.allocation</field>
+        <field name="arch" type="xml">
+            <list string="Fund Allocations"
+                  default_order="allocation_date desc, id desc"
+                  decoration-info="state == 'submitted'"
+                  decoration-warning="state == 'gm_approved'"
+                  decoration-success="state == 'md_approved'"
+                  decoration-danger="state == 'rejected'"
+                  decoration-muted="state == 'cancelled'">
+                <field name="name"/>
+                <field name="allocation_date"/>
+                <field name="fund_account_id"/>
+                <field name="allocation_type"/>
+                <field name="project_id" optional="show"/>
+                <field name="expense_head_id" optional="show"/>
+                <field name="purpose"/>
+                <field name="amount" sum="Total Allocation"/>
+                <field name="currency_id" column_invisible="True"/>
+                <field name="company_id"
+                       groups="base.group_multi_company"/>
+                <field name="state" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_nn_fund_allocation_form" model="ir.ui.view">
+        <field name="name">nn.fund.allocation.form</field>
+        <field name="model">nn.fund.allocation</field>
+        <field name="arch" type="xml">
+            <form string="Fund Allocation">
+                <header>
+                    <button name="action_submit"
+                            type="object"
+                            string="Submit"
+                            class="btn-primary"
+                            invisible="state != 'draft'"
+                            groups="nn_fund_management.group_fund_finance"/>
+
+                    <button name="action_gm_approve"
+                            type="object"
+                            string="GM Approve"
+                            class="btn-primary"
+                            invisible="state != 'submitted'"
+                            groups="nn_fund_management.group_fund_gm_approver"/>
+
+                    <button name="action_md_approve"
+                            type="object"
+                            string="MD Approve"
+                            class="btn-primary"
+                            invisible="state != 'gm_approved'"
+                            groups="nn_fund_management.group_fund_md_approver"/>
+
+                    <button name="action_reject"
+                            type="object"
+                            string="Reject"
+                            invisible="state != 'submitted' and state != 'gm_approved'"
+                            groups="nn_fund_management.group_fund_gm_approver,nn_fund_management.group_fund_md_approver"/>
+
+                    <button name="action_cancel"
+                            type="object"
+                            string="Cancel"
+                            invisible="state != 'draft' and state != 'submitted'"
+                            groups="nn_fund_management.group_fund_finance"/>
+
+                    <button name="action_reset_to_draft"
+                            type="object"
+                            string="Reset to Draft"
+                            invisible="state != 'cancelled' and state != 'rejected'"
+                            groups="nn_fund_management.group_fund_finance"/>
+
+                    <field name="state"
+                           widget="statusbar"
+                           statusbar_visible="draft,submitted,gm_approved,md_approved,rejected,cancelled"/>
+                </header>
+
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+
+                    <group>
+                        <group string="Allocation Source">
+                            <field name="fund_account_id"
+                                   readonly="state != 'draft'"/>
+
+                            <field name="allocation_date"
+                                   readonly="state != 'draft'"/>
+
+                            <field name="allocation_type"
+                                   readonly="state != 'draft'"/>
+
+                            <field name="project_id"
+                                   invisible="allocation_type != 'project'"
+                                   required="allocation_type == 'project'"
+                                   readonly="state != 'draft'"
+                                   domain="[('company_id', 'in', [False, company_id])]"/>
+
+                            <field name="expense_head_id"
+                                   invisible="allocation_type != 'expense_head'"
+                                   required="allocation_type == 'expense_head'"
+                                   readonly="state != 'draft'"
+                                   domain="[('company_id', '=', company_id)]"/>
+                        </group>
+
+                        <group string="Financial Information">
+                            <field name="amount"
+                                   readonly="state != 'draft'"/>
+
+                            <field name="currency_id"
+                                   readonly="1"/>
+
+                            <field name="company_id"
+                                   readonly="1"
+                                   groups="base.group_multi_company"/>
+
+                            <field name="purpose"
+                                   readonly="state != 'draft'"
+                                   placeholder="e.g. Initial project fund allocation"/>
+                        </group>
+                    </group>
+
+                    <group string="Notes">
+                        <field name="note"
+                               nolabel="1"
+                               readonly="state != 'draft'"
+                               placeholder="Optional allocation details..."/>
+                    </group>
+
+                    <group string="Approval Audit">
+                        <group>
+                            <field name="submitted_by_id"
+                                   readonly="1"
+                                   invisible="not submitted_by_id"/>
+
+                            <field name="submitted_date"
+                                   readonly="1"
+                                   invisible="not submitted_date"/>
+
+                            <field name="gm_approved_by_id"
+                                   readonly="1"
+                                   invisible="not gm_approved_by_id"/>
+
+                            <field name="gm_approved_date"
+                                   readonly="1"
+                                   invisible="not gm_approved_date"/>
+                        </group>
+
+                        <group>
+                            <field name="md_approved_by_id"
+                                   readonly="1"
+                                   invisible="not md_approved_by_id"/>
+
+                            <field name="md_approved_date"
+                                   readonly="1"
+                                   invisible="not md_approved_date"/>
+
+                            <field name="rejected_by_id"
+                                   readonly="1"
+                                   invisible="not rejected_by_id"/>
+
+                            <field name="rejected_date"
+                                   readonly="1"
+                                   invisible="not rejected_date"/>
+
+                            <field name="cancelled_by_id"
+                                   readonly="1"
+                                   invisible="not cancelled_by_id"/>
+
+                            <field name="cancelled_date"
+                                   readonly="1"
+                                   invisible="not cancelled_date"/>
+                        </group>
+                    </group>
+
+                    <group string="Rejection Reason"
+                           invisible="not rejection_reason">
+                        <field name="rejection_reason"
+                               nolabel="1"
+                               readonly="1"/>
+                    </group>
+                </sheet>
+
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_nn_fund_allocation_search" model="ir.ui.view">
+        <field name="name">nn.fund.allocation.search</field>
+        <field name="model">nn.fund.allocation</field>
+        <field name="arch" type="xml">
+            <search string="Search Fund Allocations">
+                <field name="name"/>
+                <field name="fund_account_id"/>
+                <field name="project_id"/>
+                <field name="expense_head_id"/>
+                <field name="purpose"/>
+                <field name="company_id"/>
+
+                <separator/>
+
+                <filter name="filter_draft"
+                        string="Draft"
+                        domain="[('state', '=', 'draft')]"/>
+
+                <filter name="filter_submitted"
+                        string="Submitted"
+                        domain="[('state', '=', 'submitted')]"/>
+
+                <filter name="filter_gm_approved"
+                        string="GM Approved"
+                        domain="[('state', '=', 'gm_approved')]"/>
+
+                <filter name="filter_md_approved"
+                        string="MD Approved"
+                        domain="[('state', '=', 'md_approved')]"/>
+
+                <filter name="filter_rejected"
+                        string="Rejected"
+                        domain="[('state', '=', 'rejected')]"/>
+
+                <filter name="filter_cancelled"
+                        string="Cancelled"
+                        domain="[('state', '=', 'cancelled')]"/>
+
+                <separator/>
+
+                <filter name="filter_allocation_date"
+                        string="Allocation Date"
+                        date="allocation_date"/>
+
+                <group>
+                    <filter name="group_by_account"
+                            string="Fund Account"
+                            context="{'group_by': 'fund_account_id'}"/>
+
+                    <filter name="group_by_type"
+                            string="Allocation Type"
+                            context="{'group_by': 'allocation_type'}"/>
+
+                    <filter name="group_by_state"
+                            string="Status"
+                            context="{'group_by': 'state'}"/>
+
+                    <filter name="group_by_company"
+                            string="Company"
+                            context="{'group_by': 'company_id'}"
+                            groups="base.group_multi_company"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_nn_fund_allocation" model="ir.actions.act_window">
+        <field name="name">Fund Allocations</field>
+        <field name="res_model">nn.fund.allocation</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id"
+               ref="view_nn_fund_allocation_search"/>
+
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first fund allocation
+            </p>
+
+            <p>
+                Submitted allocations move money from unassigned balance
+                to held balance. MD-approved allocations move money
+                from held balance to assigned balance.
+            </p>
+        </field>
+    </record>
+</odoo>
