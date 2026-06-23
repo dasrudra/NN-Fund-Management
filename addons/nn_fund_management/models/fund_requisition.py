@@ -77,10 +77,27 @@ class NnFundRequisition(models.Model):
         currency_field="currency_id",
         tracking=True,
     )
+    bill_ids = fields.One2many(
+    comodel_name="nn.fund.bill",
+    inverse_name="requisition_id",
+    string="Bills",
+    readonly=True,
+    )
+    bill_count = fields.Integer(
+        string="Bill Count",
+        compute="_compute_bill_count",
+    )
+    total_billed_amount = fields.Monetary(
+        string="Total Billed Amount",
+        currency_field="currency_id",
+        compute="_compute_bill_amounts",
+        store=True,
+        readonly=True,
+    )
     remaining_billable_amount = fields.Monetary(
         string="Remaining Billable Amount",
         currency_field="currency_id",
-        compute="_compute_remaining_billable_amount",
+        compute="_compute_bill_amounts",
         store=True,
         readonly=True,
     )
@@ -209,11 +226,27 @@ class NnFundRequisition(models.Model):
         copy=False,
     )
 
-    @api.depends("amount", "state")
-    def _compute_remaining_billable_amount(self):
+    @api.depends("bill_ids.state")
+    def _compute_bill_count(self):
         for record in self:
-            if record.state in ("md_approved", "approved", "closed"):
-                record.remaining_billable_amount = record.amount
+            record.bill_count = len(record.bill_ids)
+
+    @api.depends("amount", "state", "bill_ids.amount", "bill_ids.state")
+    def _compute_bill_amounts(self):
+        for record in self:
+            posted_total = sum(
+                bill.amount
+                for bill in record.bill_ids
+                if bill.state == "posted"
+            )
+
+            record.total_billed_amount = posted_total
+
+            if record.state in ("md_approved", "approved"):
+                record.remaining_billable_amount = max(
+                    record.amount - posted_total,
+                    0.0,
+                )
             else:
                 record.remaining_billable_amount = 0.0
 

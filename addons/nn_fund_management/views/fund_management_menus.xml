@@ -29,6 +29,12 @@
               action="action_nn_fund_requisition"
               sequence="30"/>
 
+    <menuitem id="menu_nn_fund_bill"
+              name="Fund Bills"
+              parent="menu_nn_fund_management_operations"
+              action="action_nn_fund_bill"
+              sequence="40"/>
+
     <menuitem id="menu_nn_fund_management_configuration"
               name="Configuration"
               parent="menu_nn_fund_management_root"

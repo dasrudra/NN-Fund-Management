@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="rule_fund_bill_multi_company" model="ir.rule">
+        <field name="name">
+            Fund Bill: multi-company isolation
+        </field>
+        <field name="model_id" ref="model_nn_fund_bill"/>
+        <field name="domain_force">
+            [('company_id', 'in', company_ids)]
+        </field>
+    </record>
+</odoo>

@@ -18,3 +18,8 @@ access_nn_fund_requisition_finance,nn.fund.requisition finance,model_nn_fund_req
 access_nn_fund_requisition_gm,nn.fund.requisition gm approver,model_nn_fund_requisition,nn_fund_management.group_fund_gm_approver,1,1,0,0
 access_nn_fund_requisition_md,nn.fund.requisition md approver,model_nn_fund_requisition,nn_fund_management.group_fund_md_approver,1,1,0,0
 access_nn_fund_requisition_admin,nn.fund.requisition administrator,model_nn_fund_requisition,nn_fund_management.group_fund_admin,1,1,1,1
+access_nn_fund_bill_user,nn.fund.bill user,model_nn_fund_bill,nn_fund_management.group_fund_user,1,0,0,0
+access_nn_fund_bill_finance,nn.fund.bill finance,model_nn_fund_bill,nn_fund_management.group_fund_finance,1,1,1,0
+access_nn_fund_bill_gm,nn.fund.bill gm approver,model_nn_fund_bill,nn_fund_management.group_fund_gm_approver,1,0,0,0
+access_nn_fund_bill_md,nn.fund.bill md approver,model_nn_fund_bill,nn_fund_management.group_fund_md_approver,1,0,0,0
+access_nn_fund_bill_admin,nn.fund.bill administrator,model_nn_fund_bill,nn_fund_management.group_fund_admin,1,1,1,1
