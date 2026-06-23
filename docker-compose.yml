@@ -1,0 +1,28 @@
+﻿services:
+  db:
+    image: postgres:15
+    container_name: nn_fund_management_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: odoo
+      POSTGRES_PASSWORD: odoo
+    volumes:
+      - nn_fund_management_db_data:/var/lib/postgresql/data
+
+  odoo:
+    build: .
+    container_name: nn_fund_management_odoo
+    restart: unless-stopped
+    depends_on:
+      - db
+    ports:
+      - "8069:8069"
+    volumes:
+      - nn_fund_management_odoo_data:/var/lib/odoo
+      - ./addons:/mnt/extra-addons
+      - ./docker/odoo.conf:/etc/odoo/odoo.conf
+
+volumes:
+  nn_fund_management_db_data:
+  nn_fund_management_odoo_data:

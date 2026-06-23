@@ -1,0 +1,13 @@
+﻿.git
+.gitignore
+runtime/
+config/odoo.local.conf
+__pycache__/
+*.pyc
+*.pyo
+*.log
+.env
+.venv/
+venv/
+.vscode/
+.idea/
