@@ -34,4 +34,5 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.bak
-*.swp
+*.swpconfig/odoo.runtime.conf
+config/odoo.final.conf
