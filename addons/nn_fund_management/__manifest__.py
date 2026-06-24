@@ -1,4 +1,4 @@
-﻿{
+{
     "name": "NN Fund Management",
     "summary": (
         "Secure fund allocation, requisition, bill control, "
